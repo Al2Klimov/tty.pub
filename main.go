@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/Al2Klimov/tty.pub/internal/index"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +24,8 @@ func main() {
 	go wait4term()
 
 	app := iris.Default()
+
+	app.Get("/", index.Handler)
 
 	onTerm.Lock()
 	onTerm.toDo = append(onTerm.toDo, func() {
