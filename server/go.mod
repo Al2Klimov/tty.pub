@@ -1,4 +1,4 @@
-module github.com/Al2Klimov/tty.pub
+module github.com/Al2Klimov/tty.pub/server
 
 go 1.14
 

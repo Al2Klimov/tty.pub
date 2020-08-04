@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/Al2Klimov/tty.pub/internal/index"
+	"github.com/Al2Klimov/tty.pub/server/internal/index"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
