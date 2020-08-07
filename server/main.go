@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
@@ -26,6 +27,7 @@ func main() {
 	app := iris.Default()
 
 	app.Get("/", index.Handler)
+	app.Get("/favicon.ico", favicon.Handler)
 
 	onTerm.Lock()
 	onTerm.toDo = append(onTerm.toDo, func() {
