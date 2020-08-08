@@ -43,6 +43,8 @@ const template = `<!DOCTYPE html>
     <title>%s</title>
   </head>
   <body>
+    <link rel="stylesheet" href="xterm.css">
+    <script src="xterm.js"></script>
   </body>
 </html>
 `
