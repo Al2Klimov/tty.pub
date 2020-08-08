@@ -8,13 +8,22 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+	"time"
 )
 
 var content []byte
+var modtime time.Time
 var once sync.Once
 
 func Handler(ctx iris.Context) {
 	once.Do(setup)
+
+	if modified, errMS := ctx.CheckIfModifiedSince(modtime); errMS == nil && !modified {
+		ctx.WriteNotModified()
+		return
+	}
+
+	ctx.SetLastModified(modtime)
 
 	if content == nil {
 		ctx.StatusCode(500)
@@ -50,4 +59,6 @@ func setup() {
 			"error": LoggableError{errRn}, "stderr": LoggableStringer{&err},
 		}).Error("Favicon generation failed")
 	}
+
+	modtime = time.Now()
 }

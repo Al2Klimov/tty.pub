@@ -6,16 +6,24 @@ import (
 	"html"
 	"os"
 	"sync"
+	"time"
 )
 
 var content []byte
+var modtime time.Time
 var once sync.Once
 
 func Handler(ctx iris.Context) {
 	once.Do(setup)
 
+	if modified, errMS := ctx.CheckIfModifiedSince(modtime); errMS == nil && !modified {
+		ctx.WriteNotModified()
+		return
+	}
+
 	ctx.StatusCode(200)
 	ctx.ContentType("text/html; charset=UTF-8")
+	ctx.SetLastModified(modtime)
 	ctx.Write(content)
 }
 
@@ -26,6 +34,7 @@ func setup() {
 	}
 
 	content = []byte(fmt.Sprintf(template, html.EscapeString(title)))
+	modtime = time.Now()
 }
 
 const template = `<!DOCTYPE html>
