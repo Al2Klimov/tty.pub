@@ -16,10 +16,21 @@ RUN ["mkdir", "css"]
 RUN ["cleancss", "--source-map", "-o", "css/xterm.css", "node_modules/xterm/css/xterm.css"]
 
 
+FROM node as client
+RUN ["npm", "install", "-g", "clean-css-cli", "uglify-js"]
+
+COPY client /client
+WORKDIR /client
+RUN ["mkdir", "min"]
+
+RUN ["uglifyjs", "main.js", "-c", "-m", "-o", "min/main.js", "--source-map"]
+RUN ["cleancss", "--source-map", "-o", "min/style.css", "style.css"]
+
+
 FROM alpine
 RUN ["apk", "add", "imagemagick", "ttf-liberation"]
 
-RUN ["mkdir", "/www"]
+COPY --from=client /client/min /www
 COPY --from=xtermjs /xterm.js/node_modules/xterm/lib/xterm.js* /xterm.js/css/xterm.css* /www/
 
 COPY --from=server /server/server /server
