@@ -2,6 +2,7 @@ package ws
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	. "github.com/Al2Klimov/tty.pub/server/internal"
 	"github.com/creack/pty"
@@ -46,6 +47,7 @@ func (w *wsio) Write(p []byte) (n int, err error) {
 const noDocker = "Couldn't start Docker CLI"
 
 var image string
+var dockerRun []string
 var once sync.Once
 
 func Handler(ctx iris.Context) {
@@ -62,7 +64,7 @@ func handleWs(conn *ws.Conn) {
 
 	once.Do(setup)
 
-	client := wsio{conn: conn}
+	client := &wsio{conn: conn}
 
 	{
 		cmd := exec.Command("docker", "pull", image)
@@ -70,13 +72,13 @@ func handleWs(conn *ws.Conn) {
 
 		if errPS != nil {
 			log.WithFields(log.Fields{"error": LoggableError{errPS}}).Error(noDocker)
-			fmt.Fprintln(&client, noDocker)
+			fmt.Fprintln(client, noDocker)
 			return
 		}
 
 		defer ptty.Close()
 
-		if _, errCp := io.Copy(&client, ptty); errCp != nil {
+		if _, errCp := io.Copy(client, ptty); errCp != nil {
 			if pe, ok := errCp.(*os.PathError); !(ok && pe.Err == syscall.EIO) {
 				log.WithFields(log.Fields{"error": LoggableError{errCp}}).Debug("I/O error")
 
@@ -96,7 +98,33 @@ func handleWs(conn *ws.Conn) {
 		}
 	}
 
-	// TODO
+	cmd := exec.Command("docker", dockerRun...)
+	ptty, errPS := pty.Start(cmd)
+
+	if errPS != nil {
+		log.WithFields(log.Fields{"error": LoggableError{errPS}}).Error(noDocker)
+		fmt.Fprintln(client, noDocker)
+		return
+	}
+
+	defer ptty.Close()
+
+	{
+		ch := make(chan struct{}, 2)
+
+		go cp(client, ptty, ch)
+		go cp(ptty, client, ch)
+
+		<-ch
+	}
+
+	if p := cmd.Process; p != nil {
+		p.Signal(syscall.SIGTERM)
+	}
+
+	if errWt := cmd.Wait(); errWt != nil {
+		log.WithFields(log.Fields{"image": image, "error": LoggableError{errWt}}).Debug("Container exited")
+	}
 }
 
 func setup() {
@@ -106,8 +134,28 @@ func setup() {
 	}
 
 	image = img
+	dockerRun = []string{"run", "--rm", "-it", image}
+
+	if cmd, ok := os.LookupEnv("TTYPUB_CMD"); ok {
+		var command []string
+		if errUJ := json.Unmarshal([]byte(cmd), &command); errUJ == nil {
+			dockerRun = append(dockerRun, command...)
+		} else {
+			log.WithFields(log.Fields{"error": LoggableError{errUJ}}).Error("Bad $TTYPUB_CMD")
+		}
+	}
 
 	if errSE := os.Setenv("TERM", "xterm-256color"); errSE != nil {
 		log.WithFields(log.Fields{"error": LoggableError{errSE}}).Error("Couldn't set $TERM")
 	}
+}
+
+func cp(from io.Reader, to io.Writer, done chan<- struct{}) {
+	if _, errCp := io.Copy(to, from); errCp != nil {
+		if pe, ok := errCp.(*os.PathError); !(ok && pe.Err == syscall.EIO) {
+			log.WithFields(log.Fields{"error": LoggableError{errCp}}).Debug("I/O error")
+		}
+	}
+
+	done <- struct{}{}
 }
