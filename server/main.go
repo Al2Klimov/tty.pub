@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"
+	"github.com/Al2Klimov/tty.pub/server/internal/ws"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
@@ -28,6 +29,7 @@ func main() {
 
 	app.Get("/", index.Handler)
 	app.Get("/favicon.ico", favicon.Handler)
+	app.Get("/v1", ws.Handler)
 	app.HandleDir("/", "./www", iris.DirOptions{Gzip: true})
 
 	onTerm.Lock()
