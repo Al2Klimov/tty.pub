@@ -28,7 +28,7 @@ RUN ["cleancss", "--source-map", "-o", "min/style.css", "style.css"]
 
 
 FROM alpine
-RUN ["apk", "add", "imagemagick", "ttf-liberation"]
+RUN ["apk", "add", "docker-cli", "imagemagick", "ttf-liberation"]
 
 COPY --from=client /client/min /www
 COPY --from=xtermjs /xterm.js/node_modules/xterm/lib/xterm.js* /xterm.js/css/xterm.css* /www/

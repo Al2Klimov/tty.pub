@@ -32,7 +32,14 @@
             });
 
             ws.onmessage = function(ev) {
-                xterm.write(ev.data);
+                ev.data.arrayBuffer().then(
+                    function(ab) {
+                        xterm.write(new Uint8Array(ab));
+                    },
+                    function(err) {
+                        throw err;
+                    }
+                );
             };
 
             ws.onclose = function() {
