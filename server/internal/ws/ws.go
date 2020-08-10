@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"sync"
 	"syscall"
 )
@@ -45,7 +46,9 @@ func (w *wsio) Write(p []byte) (n int, err error) {
 }
 
 const noDocker = "Couldn't start Docker CLI"
+const maxInt = int(^uint(0) >> 1)
 
+var semaphore chan struct{}
 var image string
 var dockerRun []string
 var once sync.Once
@@ -65,6 +68,9 @@ func handleWs(conn *ws.Conn) {
 	once.Do(setup)
 
 	client := &wsio{conn: conn}
+
+	semaphore <- struct{}{}
+	defer release()
 
 	{
 		cmd := exec.Command("docker", "pull", image)
@@ -148,6 +154,21 @@ func setup() {
 	if errSE := os.Setenv("TERM", "xterm-256color"); errSE != nil {
 		log.WithFields(log.Fields{"error": LoggableError{errSE}}).Error("Couldn't set $TERM")
 	}
+
+	if sessions, ok := os.LookupEnv("TTYPUB_SESSIONS"); ok {
+		if limit, errPU := strconv.ParseUint(sessions, 10, 64); errPU == nil {
+			semaphore = make(chan struct{}, limit)
+		} else {
+			log.WithFields(log.Fields{"error": LoggableError{errPU}}).Error("Bad $TTYPUB_SESSIONS")
+			semaphore = make(chan struct{}, maxInt)
+		}
+	} else {
+		semaphore = make(chan struct{}, maxInt)
+	}
+}
+
+func release() {
+	<-semaphore
 }
 
 func cp(from io.Reader, to io.Writer, done chan<- struct{}) {
