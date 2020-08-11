@@ -72,6 +72,9 @@ func handleWs(conn *ws.Conn) {
 	semaphore <- struct{}{}
 	defer release()
 
+	OnTerm.RLock()
+	defer OnTerm.RUnlock()
+
 	{
 		cmd := exec.Command("docker", "pull", image)
 		ptty, errPS := pty.Start(cmd)
@@ -121,7 +124,10 @@ func handleWs(conn *ws.Conn) {
 		go cp(client, ptty, ch)
 		go cp(ptty, client, ch)
 
-		<-ch
+		select {
+		case <-ch:
+		case <-OnTerm.Closed:
+		}
 	}
 
 	if p := cmd.Process; p != nil {

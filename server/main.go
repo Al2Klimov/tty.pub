@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	. "github.com/Al2Klimov/tty.pub/server/internal"
 	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"
 	"github.com/Al2Klimov/tty.pub/server/internal/ws"
@@ -11,15 +12,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 )
-
-var onTerm struct {
-	sync.Mutex
-
-	toDo []func()
-}
 
 func main() {
 	initLogging()
@@ -32,11 +26,11 @@ func main() {
 	app.Get("/v1", ws.Handler)
 	app.HandleDir("/", "./www", iris.DirOptions{Gzip: true})
 
-	onTerm.Lock()
-	onTerm.toDo = append(onTerm.toDo, func() {
+	OnTerm.Lock()
+	OnTerm.ToDo = append(OnTerm.ToDo, func() {
 		_ = app.Shutdown(context.Background())
 	})
-	onTerm.Unlock()
+	OnTerm.Unlock()
 
 	_ = app.Run(iris.Addr("[::]:8080"), iris.WithoutStartupLog, iris.WithoutInterruptHandler)
 }
@@ -64,8 +58,10 @@ func wait4term() {
 
 	log.WithFields(log.Fields{"signal": <-ch}).Info("Terminating")
 
-	onTerm.Lock()
-	for _, f := range onTerm.toDo {
+	close(OnTerm.Closed)
+	OnTerm.Lock()
+
+	for _, f := range OnTerm.ToDo {
 		f()
 	}
 

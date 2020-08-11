@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding"
 	"fmt"
+	"sync"
 )
 
 type LoggableStringer struct {
@@ -34,3 +35,10 @@ func (le LoggableError) String() string {
 func (le LoggableError) MarshalText() ([]byte, error) {
 	return []byte(le.String()), nil
 }
+
+var OnTerm = struct {
+	sync.RWMutex
+
+	Closed chan struct{}
+	ToDo   []func()
+}{Closed: make(chan struct{})}
