@@ -6,6 +6,7 @@ import (
 	"fmt"
 	. "github.com/Al2Klimov/tty.pub/server/internal"
 	"github.com/creack/pty"
+	"github.com/google/uuid"
 	ws "github.com/gorilla/websocket"
 	"github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
@@ -91,6 +92,12 @@ func handleWs(conn *ws.Conn) {
 
 	once.Do(setup)
 
+	uid, errNR := uuid.NewRandom()
+	if errNR != nil {
+		log.WithFields(log.Fields{"error": LoggableError{errNR}}).Error("Couldn't generate UUIDv4")
+		return
+	}
+
 	client := &wsio{conn: conn}
 	lsr := &lastSeenReader{client, 0}
 	kick := make(chan struct{}, 1)
@@ -162,7 +169,13 @@ func handleWs(conn *ws.Conn) {
 		}
 	}
 
-	cmd := exec.Command("docker", dockerRun...)
+	var args []string
+	args = append(args, dockerRun[0])
+	args = append(args, "--name")
+	args = append(args, uid.String())
+	args = append(args, dockerRun[1:]...)
+
+	cmd := exec.Command("docker", args...)
 	ptty, errPS := pty.Start(cmd)
 
 	if errPS != nil {
@@ -190,8 +203,13 @@ func handleWs(conn *ws.Conn) {
 		}
 	}
 
-	if p := cmd.Process; p != nil {
-		p.Signal(syscall.SIGTERM)
+	{
+		cmd := exec.Command("docker", "kill", uid.String())
+		if errSt := cmd.Start(); errSt == nil {
+			cmd.Wait()
+		} else {
+			log.WithFields(log.Fields{"error": LoggableError{errSt}}).Error(noDocker)
+		}
 	}
 
 	if errWt := cmd.Wait(); errWt != nil {
