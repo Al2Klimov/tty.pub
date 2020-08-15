@@ -43,7 +43,9 @@
             };
 
             ws.onclose = function() {
-                xterm.writeln("Connection to " + location.host + " closed.");
+                setTimeout(function() {
+                    xterm.writeln("Connection to " + location.host + " closed.");
+                }, 0);
             };
         };
     };
