@@ -206,7 +206,18 @@ func setup() {
 	}
 
 	image = img
-	dockerRun = []string{"run", "--rm", "-it", image}
+	dockerRun = []string{"run", "--rm", "-it"}
+
+	if runOpts, ok := os.LookupEnv("TTYPUB_RUNOPTS"); ok {
+		var opts []string
+		if errUJ := json.Unmarshal([]byte(runOpts), &opts); errUJ == nil {
+			dockerRun = append(dockerRun, opts...)
+		} else {
+			log.WithFields(log.Fields{"error": LoggableError{errUJ}}).Error("Bad $TTYPUB_RUNOPTS")
+		}
+	}
+
+	dockerRun = append(dockerRun, image)
 
 	if cmd, ok := os.LookupEnv("TTYPUB_CMD"); ok {
 		var command []string
