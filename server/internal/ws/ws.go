@@ -12,9 +12,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"syscall"
+	"time"
 )
 
 type wsio struct {
@@ -45,13 +48,34 @@ func (w *wsio) Write(p []byte) (n int, err error) {
 	return
 }
 
+type lastSeenReader struct {
+	reader   io.Reader
+	lastSeen int64
+}
+
+var _ io.Reader = (*lastSeenReader)(nil)
+
+func (lsr *lastSeenReader) Read(p []byte) (n int, err error) {
+	n, err = lsr.reader.Read(p)
+	if n > 0 {
+		atomic.StoreInt64(&lsr.lastSeen, time.Now().Unix())
+	}
+	return
+}
+
 const noDocker = "Couldn't start Docker CLI"
 const maxInt = int(^uint(0) >> 1)
 
-var semaphore chan struct{}
 var image string
 var dockerRun []string
 var once sync.Once
+
+var sessions struct {
+	sync.Mutex
+
+	sessions map[*int64]chan<- struct{}
+	limit    int
+}
 
 func Handler(ctx iris.Context) {
 	u := ws.Upgrader{EnableCompression: true}
@@ -68,9 +92,40 @@ func handleWs(conn *ws.Conn) {
 	once.Do(setup)
 
 	client := &wsio{conn: conn}
+	lsr := &lastSeenReader{client, 0}
+	kick := make(chan struct{}, 1)
 
-	semaphore <- struct{}{}
-	defer release()
+	sessions.Lock()
+
+	for len(sessions.sessions) >= sessions.limit {
+		var longestInactive struct {
+			pos      *int64
+			lastSeen int64
+		}
+
+		for lastSeenP := range sessions.sessions {
+			if lastSeen := atomic.LoadInt64(lastSeenP); lastSeen != 0 {
+				if longestInactive.lastSeen == 0 || lastSeen < longestInactive.lastSeen {
+					longestInactive.pos = lastSeenP
+					longestInactive.lastSeen = lastSeen
+				}
+			}
+		}
+
+		if longestInactive.pos != nil {
+			sessions.sessions[longestInactive.pos] <- struct{}{}
+			delete(sessions.sessions, longestInactive.pos)
+			break
+		}
+
+		runtime.Gosched()
+	}
+
+	sessions.sessions[&lsr.lastSeen] = kick
+
+	sessions.Unlock()
+
+	defer release(&lsr.lastSeen)
 
 	OnTerm.RLock()
 	defer OnTerm.RUnlock()
@@ -121,11 +176,13 @@ func handleWs(conn *ws.Conn) {
 	{
 		ch := make(chan struct{}, 2)
 
-		go cp(client, ptty, ch)
+		atomic.StoreInt64(&lsr.lastSeen, time.Now().Unix())
+		go cp(lsr, ptty, ch)
 		go cp(ptty, client, ch)
 
 		select {
 		case <-ch:
+		case <-kick:
 		case <-OnTerm.Closed:
 		}
 	}
@@ -161,20 +218,24 @@ func setup() {
 		log.WithFields(log.Fields{"error": LoggableError{errSE}}).Error("Couldn't set $TERM")
 	}
 
-	if sessions, ok := os.LookupEnv("TTYPUB_SESSIONS"); ok {
-		if limit, errPU := strconv.ParseUint(sessions, 10, 64); errPU == nil {
-			semaphore = make(chan struct{}, limit)
+	if limit, ok := os.LookupEnv("TTYPUB_SESSIONS"); ok {
+		if limit, errPU := strconv.ParseUint(limit, 10, 64); errPU == nil {
+			sessions.limit = int(limit)
 		} else {
 			log.WithFields(log.Fields{"error": LoggableError{errPU}}).Error("Bad $TTYPUB_SESSIONS")
-			semaphore = make(chan struct{}, maxInt)
+			sessions.limit = maxInt
 		}
 	} else {
-		semaphore = make(chan struct{}, maxInt)
+		sessions.limit = maxInt
 	}
+
+	sessions.sessions = map[*int64]chan<- struct{}{}
 }
 
-func release() {
-	<-semaphore
+func release(session *int64) {
+	sessions.Lock()
+	delete(sessions.sessions, session)
+	sessions.Unlock()
 }
 
 func cp(from io.Reader, to io.Writer, done chan<- struct{}) {
