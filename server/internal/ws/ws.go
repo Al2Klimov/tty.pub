@@ -174,15 +174,18 @@ func handleWs(conn *ws.Conn) {
 	defer ptty.Close()
 
 	{
-		ch := make(chan struct{}, 2)
+		r := make(chan struct{}, 1)
+		w := make(chan struct{}, 1)
 
 		atomic.StoreInt64(&lsr.lastSeen, time.Now().Unix())
-		go cp(lsr, ptty, ch)
-		go cp(ptty, client, ch)
+		go cp(lsr, ptty, r)
+		go cp(ptty, client, w)
 
 		select {
-		case <-ch:
+		case <-r:
+		case <-w:
 		case <-kick:
+			defer kickMsg(client, w)
 		case <-OnTerm.Closed:
 		}
 	}
@@ -246,4 +249,9 @@ func cp(from io.Reader, to io.Writer, done chan<- struct{}) {
 	}
 
 	done <- struct{}{}
+}
+
+func kickMsg(to io.Writer, once <-chan struct{}) {
+	<-once
+	fmt.Fprint(to, "\x1b[31m\x1b[1mI'm sorry Dave, I'm afraid you've been the longest inactive user.\x1b[0m\r\n")
 }
