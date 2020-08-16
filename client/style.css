@@ -9,3 +9,7 @@
     font-size: 102px;
     color: #FFFFFF;
 }
+
+body > p {
+    font-family: "Liberation Mono", monospace;
+}

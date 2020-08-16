@@ -45,6 +45,7 @@ const template = `<!DOCTYPE html>
   <body>
     <div id="placeholder">&#x25B6;</div>
     <div id="terminal"></div>
+    <p>Powered by <a href="https://github.com/Al2Klimov/tty.pub">tty.pub</a></p>
     <link rel="stylesheet" href="xterm.css">
     <link rel="stylesheet" href="style.css">
     <script src="xterm.js"></script>

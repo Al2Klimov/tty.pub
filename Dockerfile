@@ -2,6 +2,7 @@ FROM golang:alpine as server
 
 COPY server /server
 WORKDIR /server
+RUN ["go", "generate"]
 RUN ["go", "build", "."]
 
 
