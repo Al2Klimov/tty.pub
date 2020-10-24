@@ -169,6 +169,36 @@ func handleWs(conn *ws.Conn) {
 		}
 	}
 
+	{
+		cmd := exec.Command("docker", "image", "prune", "-f")
+		ptty, errPS := pty.Start(cmd)
+
+		if errPS != nil {
+			log.WithFields(log.Fields{"error": LoggableError{errPS}}).Error(noDocker)
+			fmt.Fprintln(client, noDocker)
+			return
+		}
+
+		defer ptty.Close()
+
+		if _, errCp := io.Copy(client, ptty); errCp != nil {
+			if pe, ok := errCp.(*os.PathError); !(ok && pe.Err == syscall.EIO) {
+				log.WithFields(log.Fields{"error": LoggableError{errCp}}).Debug("I/O error")
+
+				if errWt := cmd.Wait(); errWt != nil {
+					log.WithFields(log.Fields{"error": LoggableError{errWt}}).Warn("Couldn't clean up images")
+				}
+
+				return
+			}
+		}
+
+		if errWt := cmd.Wait(); errWt != nil {
+			log.WithFields(log.Fields{"error": LoggableError{errWt}}).Warn("Couldn't clean up images")
+			return
+		}
+	}
+
 	var args []string
 	args = append(args, dockerRun[0])
 	args = append(args, "--name")
