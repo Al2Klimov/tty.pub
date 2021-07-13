@@ -3,12 +3,11 @@ module github.com/Al2Klimov/tty.pub/server
 go 1.14
 
 require (
-	github.com/Al2Klimov/go-gen-source-repos v0.0.0-20200712150126-db66a45b2f66 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/creack/pty v1.1.13
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
