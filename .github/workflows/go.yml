@@ -19,6 +19,9 @@ jobs:
         - '1.14'
         - '1.15'
         - '1.16'
+        - '1.17'
+        - '1.18'
+        - '1.19'
         goenv:
         - GOARCH=386 GO386=sse2
         - GOARCH=amd64
@@ -76,6 +79,9 @@ jobs:
       matrix:
         go:
         - '1.16'
+        - '1.17'
+        - '1.18'
+        - '1.19'
         goenv:
         - GOARCH=386 GO386=softfloat
     steps:
@@ -95,6 +101,9 @@ jobs:
         - '1.14'
         - '1.15'
         - '1.16'
+        - '1.17'
+        - '1.18'
+        - '1.19'
         goenv:
         - GOARCH=riscv64
     steps:
@@ -118,6 +127,9 @@ jobs:
         - '1.14'
         - '1.15'
         - '1.16'
+        - '1.17'
+        - '1.18'
+        - '1.19'
     steps:
     - uses: actions/setup-go@v1
       with:
