@@ -157,27 +157,3 @@ jobs:
     #- run: cd server; CGO_ENABLED=0 GOOS=windows GOARCH=arm GOARM=6 go build ./...
     #- run: cd server; CGO_ENABLED=0 GOOS=windows GOARCH=arm GOARM=7 go build ./...
     #- run: cd server; CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build ./...
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        go:
-        # /go/pkg/mod/github.com/kataras/iris/v12@v12.1.8/core/errgroup/errgroup.go:109:9: undefined: errors.Unwrap
-        #- '1.11'
-        #- '1.12'
-        - '1.13'
-        - '1.14'
-        - '1.15'
-        - '1.16'
-        - '1.17'
-        - '1.18'
-        - '1.19'
-    steps:
-    - uses: actions/setup-go@v1
-      with:
-        go-version: ${{ matrix.go }}
-    - uses: actions/checkout@v1
-    - run: cd server; go generate ./...
-    - run: cd server; go test -race -v ./...
