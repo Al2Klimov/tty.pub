@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Al2Klimov/go-gen-source-repos v0.1.0
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/creack/pty v1.1.13
+	github.com/creack/pty v1.1.18
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/uuid v1.3.0
