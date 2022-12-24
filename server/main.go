@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	_ "github.com/Al2Klimov/go-gen-source-repos/noop"
 	. "github.com/Al2Klimov/tty.pub/server/internal"
 	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"

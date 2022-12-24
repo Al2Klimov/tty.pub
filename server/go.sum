@@ -1,5 +1,5 @@
-github.com/Al2Klimov/go-gen-source-repos v0.0.0-20200712150126-db66a45b2f66 h1:T5s6AyqoggkDsRY803RT4hXhSeqE8yxx7peIUdHD2Tk=
-github.com/Al2Klimov/go-gen-source-repos v0.0.0-20200712150126-db66a45b2f66/go.mod h1:l5fESJQgkQ1xeQjuPK9uEUKF/mTq6WPsPBOgu050BAY=
+github.com/Al2Klimov/go-gen-source-repos v0.1.0 h1:D8ZDZk37ZJV2IQwIuGr3a0GDX7MGt8OZ5XhnhSehoSc=
+github.com/Al2Klimov/go-gen-source-repos v0.1.0/go.mod h1:l5fESJQgkQ1xeQjuPK9uEUKF/mTq6WPsPBOgu050BAY=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
