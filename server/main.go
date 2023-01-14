@@ -20,6 +20,7 @@ import (
 )
 
 func main() {
+	hardening()
 	initLogging()
 	go wait4term()
 
