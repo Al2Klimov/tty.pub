@@ -10,6 +10,7 @@ import (
 	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"
 	"github.com/Al2Klimov/tty.pub/server/internal/ws"
+	"github.com/google/uuid"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	log "github.com/sirupsen/logrus"
@@ -21,6 +22,7 @@ import (
 
 func main() {
 	hardening()
+	uuid.EnableRandPool()
 	initLogging()
 	go wait4term()
 
