@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 //go:generate go run github.com/Al2Klimov/go-gen-source-repos
 
 package main
