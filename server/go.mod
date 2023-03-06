@@ -11,7 +11,7 @@ require (
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/crypto v0.6.0
-	golang.org/x/sys v0.5.0
+	golang.org/x/sys v0.6.0
 )
 
 require (
