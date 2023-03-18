@@ -3,7 +3,7 @@ module github.com/Al2Klimov/tty.pub/server
 go 1.17
 
 require (
-	github.com/Al2Klimov/go-gen-source-repos v0.1.0
+	github.com/Al2Klimov/go-gen-source-repos v0.2.0
 	github.com/creack/pty v1.1.18
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0

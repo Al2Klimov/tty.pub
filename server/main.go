@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-//go:generate go run github.com/Al2Klimov/go-gen-source-repos
 
 package main
 
 import (
 	"context"
-	_ "github.com/Al2Klimov/go-gen-source-repos/noop"
+	source_repos "github.com/Al2Klimov/go-gen-source-repos"
 	. "github.com/Al2Klimov/tty.pub/server/internal"
 	"github.com/Al2Klimov/tty.pub/server/internal/favicon"
 	"github.com/Al2Klimov/tty.pub/server/internal/index"
@@ -26,7 +25,7 @@ func main() {
 	initLogging()
 	go wait4term()
 
-	log.WithFields(log.Fields{"projects": GithubcomAl2klimovGo_gen_source_repos}).Info(
+	log.WithFields(log.Fields{"projects": append(source_repos.GetLinks(), "https://github.com/xtermjs/xterm.js")}).Info(
 		"For the terms of use, the source code and the authors see the projects this program is assembled from",
 	)
 
