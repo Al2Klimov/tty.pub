@@ -34,7 +34,7 @@ func main() {
 	app.Get("/", index.Handler)
 	app.Get("/favicon.ico", favicon.Handler)
 	app.Get("/v1", ws.Handler)
-	app.HandleDir("/", "./www", iris.DirOptions{Gzip: true})
+	app.HandleDir("/", "./www", iris.DirOptions{Compress: true})
 
 	OnTerm.Lock()
 	OnTerm.ToDo = append(OnTerm.ToDo, func() {
