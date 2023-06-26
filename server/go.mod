@@ -7,7 +7,7 @@ require (
 	github.com/creack/pty v1.1.18
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/kataras/golog v0.1.8
+	github.com/kataras/golog v0.1.9
 	github.com/kataras/iris/v12 v12.2.0
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.10.0
@@ -30,7 +30,7 @@ require (
 	github.com/iris-contrib/schema v0.0.6 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/blocks v0.0.7 // indirect
-	github.com/kataras/pio v0.0.11 // indirect
+	github.com/kataras/pio v0.0.12 // indirect
 	github.com/kataras/sitemap v0.0.6 // indirect
 	github.com/kataras/tunnel v0.0.4 // indirect
 	github.com/klauspost/compress v1.16.0 // indirect
