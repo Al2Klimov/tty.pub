@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/kataras/golog v0.1.9
-	github.com/kataras/iris/v12 v12.2.4
+	github.com/kataras/iris/v12 v12.2.5
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.12.0
 	golang.org/x/sys v0.12.0
