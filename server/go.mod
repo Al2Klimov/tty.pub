@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/Al2Klimov/go-gen-source-repos v0.2.0
 	github.com/creack/pty v1.1.18
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/kataras/golog v0.1.9
 	github.com/kataras/iris/v12 v12.2.7
