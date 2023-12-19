@@ -10,7 +10,7 @@ require (
 	github.com/kataras/golog v0.1.9
 	github.com/kataras/iris/v12 v12.2.7
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/sys v0.15.0
 )
 
