@@ -6,7 +6,7 @@ require (
 	github.com/Al2Klimov/go-gen-source-repos v0.2.0
 	github.com/creack/pty v1.1.21
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/kataras/golog v0.1.9
 	github.com/kataras/iris/v12 v12.2.7
 	github.com/sirupsen/logrus v1.9.3
